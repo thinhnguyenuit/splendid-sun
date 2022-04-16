@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=poppop123
+      - POSTGRES_DB=splendidsuns
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    restart: always
+volumes:
+  db:
+    driver: local
