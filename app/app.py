@@ -4,23 +4,27 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_migrate import Migrate
 
-from splendidsuns.extensions import db, login_manager
+from app.core.views import core
+from app.extensions import db, login_manager
+from app.users.views import users
 
 
 def create_app() -> Flask:
-    app = Flask("splendidsunsets")
+    app = Flask(__name__)
     configure_app(app)
     configure_extensions(app)
     return app
 
 
 def configure_app(app: Flask) -> None:
-    if os.getenv("USE_DOTENV", default="false") == "true":
-        load_dotenv()
+    load_dotenv()
 
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    app.register_blueprint(core)
+    app.register_blueprint(users)
 
 
 def configure_extensions(app: Flask) -> None:

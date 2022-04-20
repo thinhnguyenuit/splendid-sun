@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileAllowed, FileField
 from wtforms import PasswordField, StringField, SubmitField, ValidationError
 from wtforms.validators import DataRequired, Email, EqualTo
 
-from splendidsuns.models import User
+from app.models import User
 
 
 class LoginForm(FlaskForm):
@@ -16,7 +17,8 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     confirm_password = PasswordField(
-        "Corfirm Password", validators=[DataRequired(), EqualTo("password")])
+        "Corfirm Password", validators=[DataRequired(), EqualTo("password")]
+    )
     submit = SubmitField("Register")
 
     def check_email(self, field) -> None:
@@ -26,3 +28,20 @@ class RegistrationForm(FlaskForm):
     def check_username(self, field) -> None:
         if User.query.filter_by(username=field.data).first():
             raise ValidationError("Username is already in use.")
+
+
+class UpdateUserForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    username = StringField("Username", validators=[DataRequired()])
+    picture = FileField(
+        "Update Profile Picture", validators=[FileAllowed(["jpg", "png"])]
+    )
+    submit = SubmitField("Update")
+
+    def check_email(self, field):
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError("Your email has been registered already!")
+
+    def check_username(self, field):
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError("Sorry, that username is taken!")

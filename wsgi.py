@@ -1,3 +1,4 @@
-from splendidsuns import create_app
+from app import app
 
-splendidsuns = create_app()
+if __name__ == "__main__":
+    app.run()
