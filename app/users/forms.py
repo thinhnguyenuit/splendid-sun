@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from wtforms import PasswordField, StringField, SubmitField, ValidationError
@@ -17,15 +19,15 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     confirm_password = PasswordField(
-        "Corfirm Password", validators=[DataRequired(), EqualTo("password")]
+        "Confirm Password", validators=[DataRequired(), EqualTo("password")]
     )
     submit = SubmitField("Register")
 
-    def check_email(self, field) -> None:
+    def check_email(self, field: Any) -> None:
         if User.query.filter_by(email=field.data).first():
             raise ValidationError("Email is already in use.")
 
-    def check_username(self, field) -> None:
+    def check_username(self, field: Any) -> None:
         if User.query.filter_by(username=field.data).first():
             raise ValidationError("Username is already in use.")
 
@@ -38,10 +40,10 @@ class UpdateUserForm(FlaskForm):
     )
     submit = SubmitField("Update")
 
-    def check_email(self, field):
+    def check_email(self, field: Any) -> None:
         if User.query.filter_by(email=field.data).first():
             raise ValidationError("Your email has been registered already!")
 
-    def check_username(self, field):
+    def check_username(self, field: Any) -> None:
         if User.query.filter_by(username=field.data).first():
             raise ValidationError("Sorry, that username is taken!")

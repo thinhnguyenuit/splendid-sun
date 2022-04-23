@@ -15,12 +15,12 @@ class User(db.Model, UserMixin):
         db.String(64), nullable=False, default="default_profile.png"
     )
 
-    def __init__(self, username, email, password) -> None:
+    def __init__(self, username: str, email: str, password: str) -> None:
         self.username = username
         self.email = email
         self.password = generate_password_hash(password)
 
-    def check_password(self, password) -> bool:
+    def check_password(self, password: str) -> bool:
         return check_password_hash(self.password, password)
 
     def __repr__(self) -> str:
@@ -28,5 +28,5 @@ class User(db.Model, UserMixin):
 
 
 @login_manager.user_loader
-def load_user(user_id) -> User:
+def load_user(user_id: int) -> User:
     return User.query.get(user_id)

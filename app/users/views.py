@@ -1,6 +1,8 @@
-from fileinput import filename
+from typing import Union
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required, login_user, logout_user, current_user
+from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.wrappers.response import Response
 
 from app.extensions import db
 from app.models import User
@@ -11,7 +13,7 @@ users = Blueprint("users", __name__)
 
 
 @users.route("/register", methods=["GET", "POST"])
-def register() -> str:
+def register() -> Union[str, Response]:
     form = RegistrationForm()
 
     if form.validate_on_submit():
@@ -29,13 +31,13 @@ def register() -> str:
 
 
 @users.route("/login", methods=["GET", "POST"])
-def login() -> str:
+def login() -> Union[str, Response]:
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(email=form.email.data).first()
 
-        if user.check_password(form.password.data) and user is not None:
+        if user is not None and user.check_password(form.password.data):
             login_user(user)
             flash(f"Login is complete. Welcome back {user.username}!")
 
@@ -45,11 +47,13 @@ def login() -> str:
                 next_page = url_for("core.index")
 
             return redirect(next_page)
+        else:
+            flash("Email or pasword is not correct.")
     return render_template("login.html", form=form)
 
 
 @users.route("/logout")
-def logout():
+def logout() -> Response:
     logout_user()
     flash("You have been logged out.")
     return redirect(url_for("core.index"))
@@ -57,7 +61,7 @@ def logout():
 
 @users.route("/account", methods=["GET", "POST"])
 @login_required
-def account():
+def account() -> Union[str, Response]:
 
     form = UpdateUserForm()
 
@@ -76,6 +80,8 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
 
-    profile_image = url_for("static", filename=f"profile_imgs{current_user.profile_image}")
+    profile_image = url_for(
+        "static", filename=f"profile_imgs{current_user.profile_image}"
+    )
 
     return render_template("account.html", profile_image=profile_image, form=form)
