@@ -72,14 +72,17 @@ def account() -> Union[str, Response]:
             current_user.profile_image = img
 
         current_user.username = form.username.data
-        current_user.email = form.username.data
+        current_user.email = form.email.data
         db.session.commit()
         flash("User Updated")
         return redirect(url_for("users.account"))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
-
+    else:
+        flash("Error updating user")
+        form.username.data = current_user.username
+        form.email.data = current_user.email
     profile_image = url_for(
         "static", filename=f"profile_imgs{current_user.profile_image}"
     )
