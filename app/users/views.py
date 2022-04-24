@@ -5,7 +5,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers.response import Response
 
 from app.extensions import db
-from app.models import User
+from app.models import User, BlogPost
 from app.users.forms import LoginForm, RegistrationForm, UpdateUserForm
 from app.users.image_handler import add_profile_image
 
@@ -88,3 +88,11 @@ def account() -> Union[str, Response]:
     )
 
     return render_template("account.html", profile_image=profile_image, form=form)
+
+
+@users.route("/<username>")
+def user_posts(username):
+    page = request.args.get('page', 1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    blog_posts = BlogPost.query.filter_by(author=user).order_by(BlogPost.date.desc()).paginate(page=page, per_page=10)
+    return render_template('user_blog_posts.html', blog_posts=blog_posts, user=user)

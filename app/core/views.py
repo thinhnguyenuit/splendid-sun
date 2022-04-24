@@ -1,13 +1,16 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
+from app.models import BlogPost
 
 core = Blueprint("core", __name__)
 
 
 @core.route("/")
 def index() -> str:
-
+    page = request.args.get("page", 1, type=int)
+    blog_posts = BlogPost.query.order_by(BlogPost.created_at.desc()).paginate(page=page, per_page=10)
     return render_template(
         "index.html",
+        blog_posts=blog_posts
     )
 
 
