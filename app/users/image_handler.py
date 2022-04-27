@@ -6,7 +6,7 @@ from PIL import Image
 
 
 def add_profile_image(image: Any, username: str) -> str:
-    ext_type = image.filename.split[-1]
+    ext_type = image.filename.split(".")[-1]
     profile_img = f"{username}.{ext_type}"
     filepath = os.path.join(
         current_app.root_path, "static", "profile_imgs", profile_img

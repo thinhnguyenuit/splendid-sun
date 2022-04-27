@@ -67,8 +67,8 @@ def account() -> Union[str, Response]:
 
     if form.validate_on_submit():
         if form.picture.data:
-            username = current_user.data
-            img = add_profile_image(form.picture, username)
+            username = current_user.username
+            img = add_profile_image(form.picture.data, username)
             current_user.profile_image = img
 
         current_user.username = form.username.data
@@ -94,5 +94,5 @@ def account() -> Union[str, Response]:
 def user_posts(username):
     page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    blog_posts = BlogPost.query.filter_by(author=user).order_by(BlogPost.date.desc()).paginate(page=page, per_page=10)
+    blog_posts = BlogPost.query.filter_by(author=user).order_by(BlogPost.created_at.desc()).paginate(page=page, per_page=10)
     return render_template('user_blog_posts.html', blog_posts=blog_posts, user=user)
