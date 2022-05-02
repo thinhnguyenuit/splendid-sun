@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_migrate import Migrate
 
+from app.blog_posts.views import blog_posts
 from app.core.views import core
 from app.extensions import db, login_manager
 from app.users.views import users
-from app.blog_posts.views import blog_posts
 
 
 def create_app() -> Flask:

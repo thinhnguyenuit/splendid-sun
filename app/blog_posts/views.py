@@ -1,10 +1,13 @@
-from app.blog_posts.forms import BlogPostForm
-from flask import Blueprint, flash, redirect, render_template, request, url_for, abort
-from flask_login import login_required, current_user
-from app.models import BlogPost
-from app.extensions import db
 from typing import Union
+
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   url_for)
+from flask_login import current_user, login_required
 from werkzeug.wrappers.response import Response
+
+from app.blog_posts.forms import BlogPostForm
+from app.extensions import db
+from app.models import BlogPost
 
 blog_posts = Blueprint("blog_posts", __name__)
 
@@ -16,9 +19,7 @@ def create_post() -> Union[str, Response]:
 
     if form.validate_on_submit():
         blog_post = BlogPost(
-            title=form.title.data,
-            content=form.content.data,
-            user_id=current_user.id
+            title=form.title.data, content=form.content.data, user_id=current_user.id
         )
         db.session.add(blog_post)
         db.session.commit()

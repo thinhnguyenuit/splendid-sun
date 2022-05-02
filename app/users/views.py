@@ -5,11 +5,13 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers.response import Response
 
 from app.extensions import db
-from app.models import User, BlogPost
+from app.models import BlogPost, User
 from app.users.forms import LoginForm, RegistrationForm, UpdateUserForm
 from app.users.image_handler import add_profile_image
+from app.users.repositories import UserRepository
 
 users = Blueprint("users", __name__)
+user_repo = UserRepository()
 
 
 @users.route("/register", methods=["GET", "POST"])
@@ -23,10 +25,11 @@ def register() -> Union[str, Response]:
             password=form.password.data,
         )
 
-        db.session.add(user)
-        db.session.commit()
+        user_repo.add(user)
         flash("Registration is complete. Now you can login.")
         return redirect(url_for("users.login"))
+    for field_name, error in form.errors.items():
+        flash(f"{field_name}: {error}")
     return render_template("register.html", form=form)
 
 
@@ -35,9 +38,13 @@ def login() -> Union[str, Response]:
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = user_repo.get_user_by_email(form.email.data)
 
-        if user is not None and user.check_password(form.password.data):
+        if user is None:
+            flash("Could not find user with that email.")
+        elif not user.check_password(form.password.data):
+            flash("Incorrect password.")
+        else:
             login_user(user)
             flash(f"Login is complete. Welcome back {user.username}!")
 
@@ -47,8 +54,8 @@ def login() -> Union[str, Response]:
                 next_page = url_for("core.index")
 
             return redirect(next_page)
-        else:
-            flash("Email or pasword is not correct.")
+    for field_name, error in form.errors.items():
+        flash(f"{field_name}: {error}")
     return render_template("login.html", form=form)
 
 
@@ -91,8 +98,12 @@ def account() -> Union[str, Response]:
 
 
 @users.route("/<username>")
-def user_posts(username):
-    page = request.args.get('page', 1, type=int)
+def user_posts(username: str) -> str:
+    page = request.args.get("page", 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    blog_posts = BlogPost.query.filter_by(author=user).order_by(BlogPost.created_at.desc()).paginate(page=page, per_page=10)
-    return render_template('user_blog_posts.html', blog_posts=blog_posts, user=user)
+    blog_posts = (
+        BlogPost.query.filter_by(author=user)
+        .order_by(BlogPost.created_at.desc())
+        .paginate(page=page, per_page=10)
+    )
+    return render_template("user_blog_posts.html", blog_posts=blog_posts, user=user)
