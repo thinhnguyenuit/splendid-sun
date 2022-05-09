@@ -28,17 +28,17 @@ jobs:
 
       - name: Check formatting
         run: |
-          black --check splendidsuns/ tests/
-          isort --check-only splendidsuns/ tests/
+          black --check app/ tests/
+          isort --check-only app/ tests/
 
       - name: Check for error and style violations
         run: |
-          flake8 splendidsuns/ tests/
+          flake8 app/ tests/
 
       - name: Check typing
         run: |
-          mypy splendidsuns/ tests/
+          mypy app/ tests/
 
       - name: Run unit tests
         run: |
-          pytest --cov splendidsuns --cov-report html --cov-fail-under 90 tests/ -v
+          pytest --cov app/ --cov-report html --cov-fail-under 90 tests/ -v

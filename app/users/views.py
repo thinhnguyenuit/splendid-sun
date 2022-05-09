@@ -4,14 +4,15 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers.response import Response
 
-from app.extensions import db
-from app.models import BlogPost, User
+from app.blog_posts.repositories import BlogPostRepository
+from app.models import User
 from app.users.forms import LoginForm, RegistrationForm, UpdateUserForm
 from app.users.image_handler import add_profile_image
 from app.users.repositories import UserRepository
 
 users = Blueprint("users", __name__)
 user_repo = UserRepository()
+blog_post = BlogPostRepository()
 
 
 @users.route("/register", methods=["GET", "POST"])
@@ -28,8 +29,9 @@ def register() -> Union[str, Response]:
         user_repo.add(user)
         flash("Registration is complete. Now you can login.")
         return redirect(url_for("users.login"))
-    for field_name, error in form.errors.items():
-        flash(f"{field_name}: {error}")
+    if form.errors.items():
+        for field_name, error in form.errors.items():
+            flash(f"{field_name}: {error}")
     return render_template("register.html", form=form)
 
 
@@ -54,8 +56,9 @@ def login() -> Union[str, Response]:
                 next_page = url_for("core.index")
 
             return redirect(next_page)
-    for field_name, error in form.errors.items():
-        flash(f"{field_name}: {error}")
+    if form.errors.items():
+        for field_name, error in form.errors.items():
+            flash(f"{field_name}: {error}")
     return render_template("login.html", form=form)
 
 
@@ -80,7 +83,7 @@ def account() -> Union[str, Response]:
 
         current_user.username = form.username.data
         current_user.email = form.email.data
-        db.session.commit()
+        user_repo.update_user(current_user)
         flash("User Updated")
         return redirect(url_for("users.account"))
     elif request.method == "GET":
@@ -93,17 +96,15 @@ def account() -> Union[str, Response]:
     profile_image = url_for(
         "static", filename=f"profile_imgs{current_user.profile_image}"
     )
-
+    if form.errors.items():
+        for field_name, error in form.errors.items():
+            flash(f"{field_name}: {error}")
     return render_template("account.html", profile_image=profile_image, form=form)
 
 
 @users.route("/<username>")
 def user_posts(username: str) -> str:
     page = request.args.get("page", 1, type=int)
-    user = User.query.filter_by(username=username).first_or_404()
-    blog_posts = (
-        BlogPost.query.filter_by(author=user)
-        .order_by(BlogPost.created_at.desc())
-        .paginate(page=page, per_page=10)
-    )
+    user = user_repo.get_user_by_username(username)
+    blog_posts = blog_post.get_blog_posts_by_user(user, page_key=page)
     return render_template("user_blog_posts.html", blog_posts=blog_posts, user=user)
