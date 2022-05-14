@@ -81,8 +81,15 @@ class TestUserView:
         mock_user_repo.get_user_by_email.assert_called()
         assert response.request.path == "/login"
 
-    def test_logout_user(self, client: FlaskClient, mock_user_repo: MagicMock) -> None:
-        mock_user_repo.get_blog_posts_paginate.return_value = (
+    def test_login_user_invalid_form(self, client: FlaskClient) -> None:
+        response = client.post("/login", data=user_data.LOGIN_DATA_INVALID, follow_redirects=False)
+
+        assert response.status_code == 200
+        assert len(response.history) == 0
+        assert response.request.path == "/login"
+
+    def test_logout_user(self, client: FlaskClient, mock_core_blog_repo: MagicMock) -> None:
+        mock_core_blog_repo.get_blog_posts_paginate.return_value = (
             posts_data.PAGINATED_BLOG_POSTS
         )
 
@@ -111,6 +118,17 @@ class TestUserView:
         with mock.patch.object(views, "render_template") as mock_render_template:
             mock_render_template.return_value = ""
             response = client.get("/account", follow_redirects=False)
+
+        assert response.status_code == 200
+        assert len(response.history) == 0
+        assert response.request.path == "/account"
+
+    def test_update_user_invalid_form(self, client: FlaskClient, mock_curr_user: MagicMock) -> None:
+        with mock.patch.object(views, "render_template") as mock_render_template:
+            mock_render_template.return_value = ""
+            response = client.post(
+                "/account", data=user_data.UPDATE_USER_DATA_INVALID, follow_redirects=False
+            )
 
         assert response.status_code == 200
         assert len(response.history) == 0

@@ -12,6 +12,7 @@ REGISTER_DATA = {
 }
 
 LOGIN_DATA = {"email": EMAIL, "password": PASSWORD}
+LOGIN_DATA_INVALID = {"email": EMAIL, "password": None}
 
 USER = User(email=EMAIL, username=USERNAME, password=PASSWORD)
 
@@ -25,3 +26,4 @@ REGISTER_DATA_INVALID = {
 LOGIN_DATA_INCORRECT_PASSWORD = {"email": EMAIL, "password": "1"}
 
 UPDATE_USER_DATA = {"email": EMAIL, "username": f"{USERNAME}_UPDATED"}
+UPDATE_USER_DATA_INVALID = {"email": EMAIL, "username": None}
