@@ -24,5 +24,16 @@ class BlogPostRepository(object):
         return (
             BlogPost.query.filter_by(author=user)
             .order_by(BlogPost.created_at.desc())
-            .paginate(page=page_key, per_page=page_key)
+            .paginate(page=page_key, per_page=page_size)
         )
+
+    def get_blog_post_by_id(self, blog_post_id: int) -> BlogPost:
+        return BlogPost.query.get_or_404(blog_post_id)
+
+    def create_blog_post(self, blog_post: BlogPost) -> None:
+        self.db.session.add(blog_post)
+        self.db.session.commit()
+
+    def update_blog_post(self, blog_post: BlogPost) -> None:
+        self.db.session.merge(blog_post)
+        self.db.session.commit()

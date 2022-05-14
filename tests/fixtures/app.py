@@ -8,9 +8,9 @@ from flask import Flask
 from flask.testing import FlaskClient
 
 from app import create_app
-from app.users import views as user_views
 from app.blog_posts import views as blog_views
 from app.core import views as core_views
+from app.users import views as user_views
 
 
 @pytest.fixture(autouse=True)
@@ -42,6 +42,12 @@ def mock_user_repo() -> Generator[MagicMock, None, None]:
 @pytest.fixture()
 def mock_curr_user() -> Generator[MagicMock, None, None]:
     with mock.patch.object(user_views, "current_user") as mock_user:
+        yield mock_user
+
+
+@pytest.fixture()
+def mock_post_user() -> Generator[MagicMock, None, None]:
+    with mock.patch.object(blog_views, "current_user") as mock_user:
         yield mock_user
 
 
