@@ -1,0 +1,13 @@
+{% macro flash_msg() %}
+  <div class="flash_msg">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+{% endmacro %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+  {% from 'macros.html' import flash_msg%}
+  {{ flash_msg() }}
+<form method="POST">
+    {# This hidden_tag is a CSRF security feature. #}
+    {{ form.hidden_tag() }}
+    {{ form.email.label }} {{ form.email() }}<br>
+    {{ form.username.label }} {{ form.username() }}<br>
+    {{ form.password.label }} {{ form.password() }}<br>
+    {{ form.confirm_password.label }} {{ form.confirm_password() }}<br>
+    {{ form.submit() }}
+</form>
+{% endblock %}

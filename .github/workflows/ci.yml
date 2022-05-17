@@ -26,19 +26,16 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Check formatting
-        run: |
-          black --check .
-          isort --check-only .
-
       - name: Check for error and style violations
         run: |
-          flake8 .
+          flake8 app/ tests/
 
       - name: Check typing
         run: |
-          mypy .
+          mypy --install-types --non-interactive app/ tests/
 
       - name: Run unit tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
-          pytest --cov src --cov-report html --cov-fail-under 90 tests/ -v
+          pytest --cov app/ --cov-report html --cov-fail-under 75 tests/ -v
