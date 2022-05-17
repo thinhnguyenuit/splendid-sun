@@ -4,7 +4,7 @@ from flask.testing import FlaskClient
 from mock import MagicMock
 
 from app.blog_posts import views
-from tests.data import posts_data, user_data
+from tests.data import posts_data
 
 
 class TestBlogPostsView:

@@ -1,10 +1,8 @@
 from datetime import datetime
 
 from flask_sqlalchemy import Pagination
-from mock import MagicMock
 
 from app.models import BlogPost
-from tests.data.user_data import USER
 
 PAGINATED_BLOG_POSTS = Pagination(None, 1, 1, 1, [])
 
