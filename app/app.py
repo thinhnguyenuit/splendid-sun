@@ -8,6 +8,7 @@ from app.blog_posts.views import blog_posts
 from app.core.views import core
 from app.extensions import db, login_manager
 from app.users.views import users
+from app.error_pages.views import error_pages
 
 
 def create_app() -> Flask:
@@ -27,6 +28,7 @@ def configure_app(app: Flask) -> None:
     app.register_blueprint(core)
     app.register_blueprint(users)
     app.register_blueprint(blog_posts)
+    app.register_blueprint(error_pages)
 
 
 def configure_extensions(app: Flask) -> None:
