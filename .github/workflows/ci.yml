@@ -32,7 +32,7 @@ jobs:
 
       - name: Check typing
         run: |
-          mypy app/ tests/
+          mypy --install-types --non-interactive app/ tests/
 
       - name: Run unit tests
         run: |
