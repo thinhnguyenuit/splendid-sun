@@ -35,5 +35,7 @@ jobs:
           mypy --install-types --non-interactive app/ tests/
 
       - name: Run unit tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           pytest --cov app/ --cov-report html --cov-fail-under 75 tests/ -v
