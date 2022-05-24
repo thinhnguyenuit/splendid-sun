@@ -1,8 +1,9 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% block content %} {% from 'macros.html' import
+flash_msg%} {{ flash_msg() }}
 <div class="jumbotron">
   <h1>{{ post.title }}</h1>
-  <h2>Written by: {{post.author.username}}</h2>
-  <h3>Published: {{ post.created_at.strftime('%B %d, %Y') }}</h3>
+  <h5>Written by: {{post.author.username}}</h5>
+  <h6>Published: {{ post.created_at.strftime('%B %d, %Y') }}</h6>
   <p>{{post.content}}</p>
   {% if post.author == current_user %}
   <div>
@@ -15,7 +16,7 @@
       type="button"
       class="btn btn-danger"
       data-toggle="modal"
-      data-target="#del_modal"
+      data-target="#delModal"
     >
       Delete
     </button>
@@ -23,8 +24,8 @@
   {% endif %}
 </div>
 
-<!-- Modal for Pop Up-->
-<div class="modal" tabindex="-1" role="dialog" id="del_modal">
+<!-- Modal-->
+<div class="modal" tabindex="-1" role="dialog" id="delModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
