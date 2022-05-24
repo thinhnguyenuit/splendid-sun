@@ -1,5 +1,7 @@
 ### Splendid Suns
 
+[![CI workflows](https://github.com/thinhnguyenuit/splendid-sun/actions/workflows/ci.yml/badge.svg)](https://github.com/thinhnguyenuit/splendid-sun/actions/workflows/ci.yml)
+
 Splendid suns is a social blogging application written in Flask, a python framework.
 
 Demo application: https://splendid-suns.herokuapp.com/
