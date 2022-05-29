@@ -1,14 +1,59 @@
-{% extends "base.html" %}
-{% block content %}
-  {% from 'macros.html' import flash_msg%}
-  {{ flash_msg() }}
-<form method="POST">
-    {# This hidden_tag is a CSRF security feature. #}
-    {{ form.hidden_tag() }}
-    {{ form.email.label }} {{ form.email() }}<br>
-    {{ form.username.label }} {{ form.username() }}<br>
-    {{ form.password.label }} {{ form.password() }}<br>
-    {{ form.confirm_password.label }} {{ form.confirm_password() }}<br>
-    {{ form.submit() }}
-</form>
+{% extends "base.html" %} {% block content %} {% from 'macros.html' import
+flash_msg%} {{ flash_msg() }}
+<main class="form-signin w-100 m-auto text-center">
+  <form method="POST">
+    <h1 class="h3 mb-3 fw-normal">Sign up</h1>
+    {# This hidden_tag is a CSRF security feature. #} {{ form.hidden_tag() }}
+    <div class="form-floating">
+      <input
+        type="text"
+        class="form-control"
+        id="floatingInput"
+        placeholder="Username"
+        name="username"
+      />
+      <label for="floatingInput">Username</label>
+    </div>
+    <div class="form-floating">
+      <input
+        type="email"
+        class="form-control"
+        id="floatingInput"
+        placeholder="name@example.com"
+        name="email"
+      />
+      <label for="floatingInput">Email address</label>
+    </div>
+    <div class="form-floating">
+      <input
+        type="password"
+        class="form-control"
+        id="floatingPassword"
+        placeholder="Password"
+        name="password"
+      />
+      <label for="floatingPassword">Password</label>
+    </div>
+    <div class="form-floating">
+      <input
+        type="password"
+        class="form-control"
+        id="floatingPassword"
+        placeholder="Conform password"
+        name="confirm_password"
+      />
+      <label for="floatingPassword">Confirm password</label>
+    </div>
+    <a href="{{ url_for('users.login') }}" class="signup-image-link me-1"
+      >I already have a account</a
+    >
+    <button
+      class="w-100 btn btn-lg btn-primary"
+      type="submit"
+      style="margin-top: 10px"
+    >
+      Sign up
+    </button>
+  </form>
+</main>
 {% endblock %}
