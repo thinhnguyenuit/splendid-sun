@@ -1,6 +1,6 @@
 from typing import Union
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers.response import Response
 
@@ -27,7 +27,7 @@ def register() -> Union[str, Response]:
         )
 
         user_repo.add(user)
-        flash("Registration is complete. Now you can login.")
+        flash("Registration successful. Now you can login.")
         return redirect(url_for("users.login"))
     if form.errors.items():
         for field_name, error in form.errors.items():
@@ -48,7 +48,8 @@ def login() -> Union[str, Response]:
             flash("Incorrect password.")
         else:
             login_user(user)
-            flash(f"Login is complete. Welcome back {user.username}!")
+            session.permanent = True
+            flash(f"Login successful. Welcome back {user.username}!")
 
             next_page = request.args.get("next")
 

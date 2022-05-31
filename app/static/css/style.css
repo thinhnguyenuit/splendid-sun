@@ -23,3 +23,15 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+header {
+  margin-bottom: 20px;
+}
+
+.profile-thumbnail {
+  position: absolute;
+}
+.profile-header {
+  min-height: 260px;
+  margin-left: 280px;
+}

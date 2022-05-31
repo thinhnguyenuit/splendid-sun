@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -27,6 +28,7 @@ def configure_app(app: Flask) -> None:
         uri = uri.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 
     app.register_blueprint(core)
     app.register_blueprint(users)
