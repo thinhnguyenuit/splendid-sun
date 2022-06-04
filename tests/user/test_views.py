@@ -108,12 +108,12 @@ class TestUserView:
     ) -> None:
         mock_user_repo.update_user.return_value = None
         response = client.post(
-            "/account", data=user_data.UPDATE_USER_DATA, follow_redirects=False
+            "/edit_profile", data=user_data.UPDATE_USER_DATA, follow_redirects=False
         )
 
         assert response.status_code == 302
         assert len(response.history) == 0
-        assert response.request.path == "/account"
+        assert response.request.path == "/edit_profile"
 
     def test_update_user_get(
         self, client: FlaskClient, mock_user_repo: MagicMock, mock_curr_user: MagicMock
@@ -121,11 +121,11 @@ class TestUserView:
 
         with mock.patch.object(views, "render_template") as mock_render_template:
             mock_render_template.return_value = ""
-            response = client.get("/account", follow_redirects=False)
+            response = client.get("/edit_profile", follow_redirects=False)
 
         assert response.status_code == 200
         assert len(response.history) == 0
-        assert response.request.path == "/account"
+        assert response.request.path == "/edit_profile"
 
     def test_update_user_invalid_form(
         self, client: FlaskClient, mock_curr_user: MagicMock
@@ -133,16 +133,16 @@ class TestUserView:
         with mock.patch.object(views, "render_template") as mock_render_template:
             mock_render_template.return_value = ""
             response = client.post(
-                "/account",
+                "/edit_profile",
                 data=user_data.UPDATE_USER_DATA_INVALID,
                 follow_redirects=False,
             )
 
         assert response.status_code == 200
         assert len(response.history) == 0
-        assert response.request.path == "/account"
+        assert response.request.path == "/edit_profile"
 
-    def test_get_user_post(
+    def test_get_user_profile(
         self,
         client: FlaskClient,
         mock_user_repo: MagicMock,
@@ -155,6 +155,6 @@ class TestUserView:
         )
         mock_render_template.return_value = ""
 
-        response = client.get(f"/{user_data.USER.username}")
+        response = client.get(f"/users/{user_data.USER.username}")
 
         assert response.status_code == 200

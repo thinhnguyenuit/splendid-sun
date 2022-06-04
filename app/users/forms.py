@@ -2,7 +2,8 @@ from typing import Any
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import PasswordField, StringField, SubmitField, ValidationError
+from wtforms import (PasswordField, StringField, SubmitField, TextAreaField,
+                     ValidationError)
 from wtforms.validators import DataRequired, Email, EqualTo
 
 from app.models import User
@@ -38,6 +39,7 @@ class UpdateUserForm(FlaskForm):
     picture = FileField(
         "Update Profile Picture", validators=[FileAllowed(["jpg", "png", "jpeg"])]
     )
+    about_me = TextAreaField("About me")
     submit = SubmitField("Update")
 
     def check_email(self, field: Any) -> None:

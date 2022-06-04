@@ -57,8 +57,8 @@
               <li class="nav-item">
                 <a
                   class="nav-link px-2 text-white"
-                  href="{{ url_for('users.account') }}"
-                  >Account</a
+                  href="{{ url_for('users.user', username=current_user.username) }}"
+                  >Profile</a
                 >
               </li>
               <li class="nav-item">

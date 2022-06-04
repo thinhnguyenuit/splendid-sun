@@ -38,4 +38,4 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
-          pytest --cov app/ --cov-report html --cov-fail-under 75 tests/ -v
+          pytest --cov app/ --cov-report html --cov-fail-under 80 tests/ -v
