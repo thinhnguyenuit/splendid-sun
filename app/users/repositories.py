@@ -20,4 +20,4 @@ class UserRepository(object):
         self.db.session.commit()
 
     def get_user_by_username(self, username: str) -> User:
-        return User.query.filter_by(username=username).first_or_404()
+        return User.query.filter_by(username=username).one_or_none()
