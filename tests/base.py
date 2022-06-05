@@ -19,6 +19,9 @@ class AppBaseTestCase(unittest.TestCase):
     def setUpClass(cls) -> None:
         super(AppBaseTestCase, cls).setUpClass()
         cls.app = create_app()
+        cls.app.config[
+            "SQLALCHEMY_DATABASE_URI"
+        ] = "postgresql://postgres:postgres@localhost:5442/test_db"
 
         cls.db = extensions.db
         cls.db.app = cls.app
@@ -35,9 +38,6 @@ class AppBaseTestCase(unittest.TestCase):
         self.app.config["TESTING"] = True
         self.app.config["WTF_CSRF_ENABLED"] = False
         self.app.config["LOGIN_DISABLED"] = True
-        self.app.config[
-            "SQLALCHEMY_DATABASE_URI"
-        ] = "postgresql://postgres:postgres@localhost:5442/test_db"
 
         self.client = self.app.test_client()
         self.db.create_all()
