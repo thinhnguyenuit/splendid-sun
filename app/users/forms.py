@@ -2,7 +2,13 @@ from typing import Any
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import PasswordField, StringField, SubmitField, ValidationError
+from wtforms import (
+    PasswordField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+    ValidationError,
+)
 from wtforms.validators import DataRequired, Email, EqualTo
 
 from app.models import User
@@ -19,17 +25,21 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     confirm_password = PasswordField(
-        "Confirm Password", validators=[DataRequired(), EqualTo("password")]
+        "Confirm Password",
+        validators=[
+            DataRequired(),
+            EqualTo("password", message="Passwords must match"),
+        ],
     )
     submit = SubmitField("Register")
 
-    def check_email(self, field: Any) -> None:
+    def validate_email(self, field: Any) -> None:
         if User.query.filter_by(email=field.data).first():
-            raise ValidationError("Email is already in use.")
+            raise ValidationError("That email is taken!")
 
-    def check_username(self, field: Any) -> None:
+    def validate_username(self, field: Any) -> None:
         if User.query.filter_by(username=field.data).first():
-            raise ValidationError("Username is already in use.")
+            raise ValidationError("That username is taken!")
 
 
 class UpdateUserForm(FlaskForm):
@@ -38,12 +48,5 @@ class UpdateUserForm(FlaskForm):
     picture = FileField(
         "Update Profile Picture", validators=[FileAllowed(["jpg", "png", "jpeg"])]
     )
+    about_me = TextAreaField("About me")
     submit = SubmitField("Update")
-
-    def check_email(self, field: Any) -> None:
-        if User.query.filter_by(email=field.data).first():
-            raise ValidationError("Your email has been registered already!")
-
-    def check_username(self, field: Any) -> None:
-        if User.query.filter_by(username=field.data).first():
-            raise ValidationError("Sorry, that username is taken!")

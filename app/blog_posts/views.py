@@ -1,7 +1,6 @@
 from typing import Union
 
-from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   url_for)
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.wrappers.response import Response
 
@@ -9,6 +8,7 @@ from app.blog_posts.forms import BlogPostForm
 from app.blog_posts.repositories import BlogPostRepository
 from app.extensions import db
 from app.models import BlogPost
+from app.utils.flash_errors import flash_errors
 
 blog_posts = Blueprint("blog_posts", __name__)
 blog_post_repo = BlogPostRepository()
@@ -21,14 +21,16 @@ def create_post() -> Union[str, Response]:
 
     if form.validate_on_submit():
         post = BlogPost(
-            title=form.title.data, content=form.content.data, user_id=current_user.id
+            title=form.title.data,
+            content=form.content.data,
+            user_id=current_user.id,
+            user=current_user,
         )
         blog_post_repo.create_blog_post(post)
         flash("Blog Post Created")
         return redirect(url_for("core.index"))
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
+    else:
+        flash_errors(form)
     return render_template("create_post.html", form=form)
 
 
@@ -57,6 +59,8 @@ def update(blog_post_id: int) -> Union[str, Response]:
     elif request.method == "GET":
         form.title.data = post.title
         form.content.data = post.content
+    else:
+        flash_errors(form)
 
     return render_template("create_post.html", title="Update", form=form)
 

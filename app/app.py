@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -6,9 +7,9 @@ from flask_migrate import Migrate
 
 from app.blog_posts.views import blog_posts
 from app.core.views import core
+from app.error_pages.views import error_pages
 from app.extensions import db, login_manager
 from app.users.views import users
-from app.error_pages.views import error_pages
 
 
 def create_app() -> Flask:
@@ -27,6 +28,7 @@ def configure_app(app: Flask) -> None:
         uri = uri.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=5)
 
     app.register_blueprint(core)
     app.register_blueprint(users)

@@ -1,6 +1,6 @@
 from typing import Union
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers.response import Response
 
@@ -9,6 +9,7 @@ from app.models import User
 from app.users.forms import LoginForm, RegistrationForm, UpdateUserForm
 from app.users.image_handler import add_profile_image
 from app.users.repositories import UserRepository
+from app.utils.flash_errors import flash_errors
 
 users = Blueprint("users", __name__)
 user_repo = UserRepository()
@@ -27,11 +28,10 @@ def register() -> Union[str, Response]:
         )
 
         user_repo.add(user)
-        flash("Registration is complete. Now you can login.")
+        flash("Registration successful. Now you can login.")
         return redirect(url_for("users.login"))
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
+    else:
+        flash_errors(form)
     return render_template("register.html", form=form)
 
 
@@ -48,7 +48,8 @@ def login() -> Union[str, Response]:
             flash("Incorrect password.")
         else:
             login_user(user)
-            flash(f"Login is complete. Welcome back {user.username}!")
+            session.permanent = True
+            flash(f"Login successful. Welcome back {user.username}!")
 
             next_page = request.args.get("next")
 
@@ -56,9 +57,8 @@ def login() -> Union[str, Response]:
                 next_page = url_for("core.index")
 
             return redirect(next_page)
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
+    else:
+        flash_errors(form)
     return render_template("login.html", form=form)
 
 
@@ -69,9 +69,9 @@ def logout() -> Response:
     return redirect(url_for("core.index"))
 
 
-@users.route("/account", methods=["GET", "POST"])
+@users.route("/edit_profile", methods=["GET", "POST"])
 @login_required
-def account() -> Union[str, Response]:
+def edit_profile() -> Union[str, Response]:
 
     form = UpdateUserForm()
 
@@ -81,30 +81,44 @@ def account() -> Union[str, Response]:
             img = add_profile_image(form.picture.data, username)
             current_user.profile_image = img
 
+        if current_user.username != form.username.data and user_repo.get_user_by_username(form.username.data):
+            flash("Username already taken.")
+            return render_template("edit_profile.html", form=form)
+
+        if current_user.email != form.email.data and user_repo.get_user_by_email(form.email.data):
+            flash("Email already taken.")
+            return render_template("edit_profile.html", form=form)
+
         current_user.username = form.username.data
         current_user.email = form.email.data
+        current_user.about_me = form.about_me.data
         user_repo.update_user(current_user)
-        flash("User Updated")
-        return redirect(url_for("users.account"))
+        flash("Your profile has been updated.")
+        return redirect(url_for("users.user", username=current_user.username))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
+        form.about_me.data = current_user.about_me
     else:
-        flash("Error updating user")
+        flash("Error while updating profile.")
         form.username.data = current_user.username
         form.email.data = current_user.email
-    profile_image = url_for(
-        "static", filename=f"profile_imgs{current_user.profile_image}"
-    )
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
-    return render_template("account.html", profile_image=profile_image, form=form)
+        form.about_me.data = current_user.about_me
+        flash(form.errors)
+    return render_template("edit_profile.html", form=form)
 
 
-@users.route("/<username>")
-def user_posts(username: str) -> str:
+@users.route("/users/<username>")
+def user(username: str) -> str:
     page = request.args.get("page", 1, type=int)
-    user = user_repo.get_user_by_username(username)
-    blog_posts = blog_post.get_blog_posts_by_user(user, page_key=page)
-    return render_template("user_blog_posts.html", blog_posts=blog_posts, user=user)
+    curr_user = user_repo.get_user_by_username(username)
+    if not curr_user:
+        abort(404)
+    blog_posts = blog_post.get_blog_posts_by_user(curr_user, page_key=page)
+    profile_image = url_for("static", filename=f"profile_imgs{curr_user.profile_image}")
+    return render_template(
+        "account.html",
+        blog_posts=blog_posts,
+        user=curr_user,
+        profile_image=profile_image,
+    )

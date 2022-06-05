@@ -1,8 +1,6 @@
-{% extends "base.html" %} {% block content %} {% from 'macros.html' import
-flash_msg%} {{ flash_msg() }}
+{% extends "base.html" %} {% block content %}
 <div class="jumbotron">
   <h1>Splendid Suns</h1>
-  <p>Welcome to my blog</p>
 </div>
 
 <div class="container">
@@ -17,7 +15,7 @@ flash_msg%} {{ flash_msg() }}
           >{{ post.title }}</a
         >
       </h2>
-      <a href="{{ url_for('users.user_posts', username=post.author.username) }}"
+      <a href="{{ url_for('users.user', username=post.author.username) }}"
         >Written By: {{ post.author.username }}</a
       >
       <p>Published on: {{ post.created_at.strftime('%Y-%m-%d') }}</p>

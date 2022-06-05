@@ -1,5 +1,4 @@
-{% extends "base.html" %} {% block content %} {% from 'macros.html' import
-flash_msg%} {{ flash_msg() }}
+{% extends "base.html" %} {% block content %}
 <div class="jumbotron">
   <h1>{{ post.title }}</h1>
   <h5>Written by: {{post.author.username}}</h5>

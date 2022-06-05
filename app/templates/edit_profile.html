@@ -1,15 +1,19 @@
 {% extends "base.html" %} {% block content %}
+
 <main class="form-center w-100 m-auto text-center">
-  <form method="POST">
-    <h1 class="h3 mb-3 fw-normal">Sign up</h1>
+  <form method="POST" action enctype="multipart/form-data">
     {# This hidden_tag is a CSRF security feature. #} {{ form.hidden_tag() }}
+    <h1 class="h3 mb-3 fw-normal">Edit your profile</h1>
+
     <div class="form-floating">
       <input
         type="text"
         class="form-control"
         id="floatingInput"
         placeholder="Username"
+        required
         name="username"
+        value="{{ form.username.data }}"
       />
       <label for="floatingInput">Username</label>
     </div>
@@ -19,40 +23,37 @@
         class="form-control"
         id="floatingInput"
         placeholder="name@example.com"
+        required
         name="email"
+        value="{{ form.email.data }}"
       />
       <label for="floatingInput">Email address</label>
     </div>
     <div class="form-floating">
       <input
-        type="password"
+        type="text"
         class="form-control"
-        id="floatingPassword"
-        placeholder="Password"
-        name="password"
+        id="floatingInput"
+        placeholder="About me"
+        name="about_me"
+        value="{{ form.about_me.data }}"
       />
-      <label for="floatingPassword">Password</label>
+      <label for="floatingInput">About me</label>
     </div>
     <div class="form-floating">
       <input
-        type="password"
+        type="file"
+        accept="image/*"
         class="form-control"
-        id="floatingPassword"
-        placeholder="Conform password"
-        name="confirm_password"
+        id="about_me"
+        alt="profile image"
+        name="picture"
       />
-      <label for="floatingPassword">Confirm password</label>
+      <label for="floatingInput">Avatar</label>
     </div>
-    <a href="{{ url_for('users.login') }}" class="signup-image-link me-1"
-      >I already have a account</a
-    >
-    <button
-      class="w-100 btn btn-lg btn-primary"
-      type="submit"
-      style="margin-top: 10px"
-    >
-      Sign up
-    </button>
+
+    <button class="w-100 btn btn-lg btn-primary" type="submit">Update</button>
   </form>
 </main>
-{% endblock %}
+
+{% endblock content %}

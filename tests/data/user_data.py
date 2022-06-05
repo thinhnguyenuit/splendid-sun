@@ -1,7 +1,7 @@
 from app.models import User
 
 EMAIL = "test@mail.com"
-PASSWORD = "test"
+PASSWORD = "testpassword"
 USERNAME = "test"
 
 REGISTER_DATA = {
@@ -14,7 +14,7 @@ REGISTER_DATA = {
 LOGIN_DATA = {"email": EMAIL, "password": PASSWORD}
 LOGIN_DATA_INVALID = {"email": EMAIL, "password": None}
 
-USER = User(email=EMAIL, username=USERNAME, password=PASSWORD)
+USER = User(id=1, email=EMAIL, username=USERNAME, password=PASSWORD)
 
 REGISTER_DATA_INVALID = {
     "email": "a@email.com",
@@ -25,5 +25,6 @@ REGISTER_DATA_INVALID = {
 
 LOGIN_DATA_INCORRECT_PASSWORD = {"email": EMAIL, "password": "1"}
 
-UPDATE_USER_DATA = {"email": EMAIL, "username": f"{USERNAME}_UPDATED"}
+UPDATED_USERNAME = f"{USERNAME}_UPDATED"
+UPDATE_USER_DATA = {"email": f"UPDATED_{EMAIL}", "username": UPDATED_USERNAME}
 UPDATE_USER_DATA_INVALID = {"email": EMAIL, "username": None}
