@@ -2,18 +2,14 @@ import re
 from unittest import mock
 from unittest.mock import MagicMock
 
-from flask.testing import FlaskClient
+from tests import factories
+from tests.base import AppBaseTestCase
+from tests.data import user_data
 
-from app.users import views
-from tests.data import posts_data, user_data
 
-
-class TestUserView:
-    def test_register_user(
-        self, client: FlaskClient, mock_user_repo: MagicMock
-    ) -> None:
-        mock_user_repo.add.return_value = None
-        response = client.post(
+class TestUserViews(AppBaseTestCase):
+    def test_register_user(self) -> None:
+        response = self.client.post(
             "/register", data=user_data.REGISTER_DATA, follow_redirects=True
         )
 
@@ -21,11 +17,8 @@ class TestUserView:
         assert len(response.history) == 1
         assert response.request.path == "/login"
 
-    def test_register_user_invalid_data(
-        self, client: FlaskClient, mock_user_repo: MagicMock
-    ) -> None:
-        mock_user_repo.add.return_value = None
-        response = client.post(
+    def test_register_user_invalid_data(self) -> None:
+        response = self.client.post(
             "/register", data=user_data.REGISTER_DATA_INVALID, follow_redirects=True
         )
 
@@ -33,23 +26,24 @@ class TestUserView:
         assert len(response.history) == 0
         assert response.request.path == "/register"
 
-    def test_login_user(self, client: FlaskClient, mock_user_repo: MagicMock) -> None:
-        mock_user_repo.get_user_by_email.return_value = user_data.USER
-        response = client.post(
-            "/login", data=user_data.LOGIN_DATA, follow_redirects=False
+    def test_login_user(self) -> None:
+        user = factories.UserFactory()
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        response = self.client.post(
+            "/login",
+            data={"email": user.email, "password": "testpassword"},
+            follow_redirects=True,
         )
 
-        assert response.status_code == 302
-        mock_user_repo.get_user_by_email.assert_called()
-        assert response.request.path == "/login"
+        assert response.status_code == 200
+        assert len(response.history) == 1
+        assert response.request.path == "/"
 
-    def test_login_user_not_exist(
-        self, client: FlaskClient, mock_user_repo: MagicMock
-    ) -> None:
-        mock_user_repo.get_user_by_email.return_value = None
-
-        response = client.post(
-            "/login", data=user_data.LOGIN_DATA, follow_redirects=False
+    def test_login_user_not_exist(self) -> None:
+        response = self.client.post(
+            "/login", data=user_data.LOGIN_DATA, follow_redirects=True
         )
 
         assert (
@@ -59,102 +53,83 @@ class TestUserView:
             is not None
         )
         assert response.status_code == 200
-        mock_user_repo.get_user_by_email.assert_called()
         assert response.request.path == "/login"
 
-    def test_login_user_incorrct_password(
-        self, client: FlaskClient, mock_user_repo: MagicMock
-    ) -> None:
-        mock_user_repo.get_user_by_email.return_value = user_data.USER
+    def test_login_user_incorrct_password(self) -> None:
+        user = factories.UserFactory()
+        self.db.session.add(user)
+        self.db.session.commit()
 
-        response = client.post(
+        response = self.client.post(
             "/login",
             data=user_data.LOGIN_DATA_INCORRECT_PASSWORD,
             follow_redirects=False,
         )
 
-        assert (
-            re.search("Incorrect password.", response.get_data(as_text=True))
-            is not None
-        )
         assert response.status_code == 200
-        mock_user_repo.get_user_by_email.assert_called()
         assert response.request.path == "/login"
 
-    def test_login_user_invalid_form(self, client: FlaskClient) -> None:
-        response = client.post(
-            "/login", data=user_data.LOGIN_DATA_INVALID, follow_redirects=False
+    def test_login_user_invalid_form(self) -> None:
+        response = self.client.post(
+            "/login", data=user_data.LOGIN_DATA_INVALID, follow_redirects=True
         )
 
         assert response.status_code == 200
         assert len(response.history) == 0
         assert response.request.path == "/login"
 
-    def test_logout_user(
-        self, client: FlaskClient, mock_core_blog_repo: MagicMock
-    ) -> None:
-        mock_core_blog_repo.get_blog_posts_paginate.return_value = (
-            posts_data.PAGINATED_BLOG_POSTS
-        )
-
-        response = client.get("/logout", follow_redirects=True)
+    def test_logout_user(self) -> None:
+        response = self.client.get("/logout", follow_redirects=True)
 
         assert response.status_code == 200
         assert len(response.history) == 1
         assert response.request.path == "/"
 
-    def test_update_user(
-        self, client: FlaskClient, mock_user_repo: MagicMock, mock_curr_user: MagicMock
-    ) -> None:
-        mock_user_repo.update_user.return_value = None
-        response = client.post(
-            "/edit_profile", data=user_data.UPDATE_USER_DATA, follow_redirects=False
+    @mock.patch("flask_login.utils._get_user")
+    def test_update_user(self, current_user: MagicMock) -> None:
+        user = factories.UserFactory()
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        current_user.return_value = user
+
+        response = self.client.post(
+            "/edit_profile",
+            data={"email": f"new-{user.email}", "username": f"new_{user.username}"},
+            follow_redirects=True,
         )
 
-        assert response.status_code == 302
-        assert len(response.history) == 0
-        assert response.request.path == "/edit_profile"
+        assert response.status_code == 200
+        assert len(response.history) == 1
+        assert response.request.path == f"/users/{user.username}"
 
-    def test_update_user_get(
-        self, client: FlaskClient, mock_user_repo: MagicMock, mock_curr_user: MagicMock
-    ) -> None:
-
-        with mock.patch.object(views, "render_template") as mock_render_template:
-            mock_render_template.return_value = ""
-            response = client.get("/edit_profile", follow_redirects=False)
+    @mock.patch("flask_login.utils._get_user")
+    def test_update_user_get(self, current_user: MagicMock) -> None:
+        current_user.return_value = factories.UserFactory()
+        response = self.client.get("/edit_profile", follow_redirects=True)
 
         assert response.status_code == 200
         assert len(response.history) == 0
         assert response.request.path == "/edit_profile"
 
-    def test_update_user_invalid_form(
-        self, client: FlaskClient, mock_curr_user: MagicMock
-    ) -> None:
-        with mock.patch.object(views, "render_template") as mock_render_template:
-            mock_render_template.return_value = ""
-            response = client.post(
-                "/edit_profile",
-                data=user_data.UPDATE_USER_DATA_INVALID,
-                follow_redirects=False,
-            )
+    @mock.patch("flask_login.utils._get_user")
+    def test_update_user_invalid_form(self, current_user: MagicMock) -> None:
+        current_user.return_value = factories.UserFactory()
+        response = self.client.post(
+            "/edit_profile",
+            data=user_data.UPDATE_USER_DATA_INVALID,
+            follow_redirects=True,
+        )
 
         assert response.status_code == 200
         assert len(response.history) == 0
         assert response.request.path == "/edit_profile"
 
-    def test_get_user_profile(
-        self,
-        client: FlaskClient,
-        mock_user_repo: MagicMock,
-        mock_user_blog_repo: MagicMock,
-        mock_render_template: MagicMock,
-    ) -> None:
-        mock_user_repo.get_user_by_id.return_value = user_data.USER
-        mock_user_blog_repo.get_blog_posts_by_user.return_value = (
-            posts_data.PAGINATED_BLOG_POSTS
-        )
-        mock_render_template.return_value = ""
+    def test_get_user_profile(self) -> None:
+        user = factories.UserFactory()
+        self.db.session.add(user)
+        self.db.session.commit()
 
-        response = client.get(f"/users/{user_data.USER.username}")
+        response = self.client.get(f"/users/{user.username}")
 
         assert response.status_code == 200

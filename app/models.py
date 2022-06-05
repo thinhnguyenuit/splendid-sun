@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -22,10 +23,19 @@ class User(db.Model, UserMixin):
 
     posts = db.relationship("BlogPost", backref="author", lazy=True)
 
-    def __init__(self, username: str, email: str, password: str) -> None:
+    def __init__(
+        self,
+        username: str,
+        email: str,
+        password: str,
+        id: Optional[int] = None,
+        about_me: Optional[str] = None,
+    ) -> None:
+        self.id = id
         self.username = username
         self.email = email
         self.password = generate_password_hash(password)
+        self.about_me = about_me
 
     def check_password(self, password: str) -> bool:
         return check_password_hash(self.password, password)
@@ -49,10 +59,19 @@ class BlogPost(db.Model):
 
     user = db.relationship(User)
 
-    def __init__(self, title: str, content: str, user_id: int) -> None:
+    def __init__(
+        self,
+        title: str,
+        content: str,
+        user_id: int,
+        id: Optional[int] = None,
+        user: Optional[User] = None,
+    ) -> None:
+        self.id = id
         self.title = title
         self.content = content
         self.user_id = user_id
+        self.user = user
 
     def __repr__(self) -> str:
         return f"Post id: {self.id}, title: {self.title}, user_id: {self.user_id}"

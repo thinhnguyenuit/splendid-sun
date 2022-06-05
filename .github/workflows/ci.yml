@@ -38,4 +38,5 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
+          docker-compose up -d
           pytest --cov app/ --cov-report html --cov-fail-under 80 tests/ -v

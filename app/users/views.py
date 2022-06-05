@@ -1,7 +1,6 @@
 from typing import Union
 
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, abort
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.wrappers.response import Response
 
@@ -10,6 +9,7 @@ from app.models import User
 from app.users.forms import LoginForm, RegistrationForm, UpdateUserForm
 from app.users.image_handler import add_profile_image
 from app.users.repositories import UserRepository
+from app.utils.flash_errors import flash_errors
 
 users = Blueprint("users", __name__)
 user_repo = UserRepository()
@@ -30,9 +30,8 @@ def register() -> Union[str, Response]:
         user_repo.add(user)
         flash("Registration successful. Now you can login.")
         return redirect(url_for("users.login"))
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
+    else:
+        flash_errors(form)
     return render_template("register.html", form=form)
 
 
@@ -58,9 +57,8 @@ def login() -> Union[str, Response]:
                 next_page = url_for("core.index")
 
             return redirect(next_page)
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
+    else:
+        flash_errors(form)
     return render_template("login.html", form=form)
 
 
@@ -83,6 +81,14 @@ def edit_profile() -> Union[str, Response]:
             img = add_profile_image(form.picture.data, username)
             current_user.profile_image = img
 
+        if current_user.username != form.username.data and user_repo.get_user_by_username(form.username.data):
+            flash("Username already taken.")
+            return render_template("edit_profile.html", form=form)
+
+        if current_user.email != form.email.data and user_repo.get_user_by_email(form.email.data):
+            flash("Email already taken.")
+            return render_template("edit_profile.html", form=form)
+
         current_user.username = form.username.data
         current_user.email = form.email.data
         current_user.about_me = form.about_me.data
@@ -98,10 +104,7 @@ def edit_profile() -> Union[str, Response]:
         form.username.data = current_user.username
         form.email.data = current_user.email
         form.about_me.data = current_user.about_me
-
-    if form.errors.items():
-        for field_name, error in form.errors.items():
-            flash(f"{field_name}: {error}")
+        flash(form.errors)
     return render_template("edit_profile.html", form=form)
 
 
@@ -109,6 +112,8 @@ def edit_profile() -> Union[str, Response]:
 def user(username: str) -> str:
     page = request.args.get("page", 1, type=int)
     curr_user = user_repo.get_user_by_username(username)
+    if not curr_user:
+        abort(404)
     blog_posts = blog_post.get_blog_posts_by_user(curr_user, page_key=page)
     profile_image = url_for("static", filename=f"profile_imgs{curr_user.profile_image}")
     return render_template(
