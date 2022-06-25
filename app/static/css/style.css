@@ -35,3 +35,53 @@ header {
   min-height: 260px;
   margin-left: 280px;
 }
+
+.comment-block {
+  margin-bottom: 50px !important;
+  border: 1px solid #edeff2;
+  border-radius: 2px;
+  border:1px solid #ffffff;
+}
+
+.comment-title {
+  font-size: 16px;
+  color: #262626;
+  margin-bottom: 15px;
+
+
+}
+
+.comment-img {
+  width: 60px;
+  height: 60px;
+  float: left;
+  margin-bottom: 15px;
+}
+
+.comment-content span {
+  display: inline-block;
+  width: 49%;
+  margin-bottom: 15px;
+}
+
+.comment-name {
+  font-size: 13px;
+}
+
+.comment-content a {
+  color: #383b43;
+}
+
+.comment-time {
+  text-align: right;
+}
+
+.comment-text {
+  font-size: 13px;
+  line-height: 18px;
+  color: #7a8192;
+  display: block;
+  background: #f6f6f7;
+  border: 1px solid #edeff2;
+  padding: 15px 20px 20px 20px;
+}

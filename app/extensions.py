@@ -1,6 +1,7 @@
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
+from flask_bootstrap import Bootstrap
 
 # Database
 metadata = MetaData(
@@ -15,3 +16,6 @@ db = SQLAlchemy(metadata=metadata, session_options={"future": True})
 
 # Login
 login_manager = LoginManager()
+
+# Bootstrap
+bootstrap = Bootstrap()

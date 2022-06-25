@@ -37,3 +37,7 @@ class BlogPostRepository(object):
     def update_blog_post(self, blog_post: BlogPost) -> None:
         self.db.session.merge(blog_post)
         self.db.session.commit()
+
+    def delete_blog_post(self, blog_post: BlogPost) -> None:
+        db.session.delete(blog_post)
+        db.session.commit()

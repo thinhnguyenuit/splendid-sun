@@ -6,12 +6,15 @@ from werkzeug.wrappers.response import Response
 
 from app.blog_posts.forms import BlogPostForm
 from app.blog_posts.repositories import BlogPostRepository
-from app.extensions import db
 from app.models import BlogPost
 from app.utils.flash_errors import flash_errors
+from app.models import Comment
+from app.comments.forms import CommentForm
+from app.comments.repositories import CommentRepository
 
 blog_posts = Blueprint("blog_posts", __name__)
 blog_post_repo = BlogPostRepository()
+comment_repo = CommentRepository()
 
 
 @blog_posts.route("/create", methods=["GET", "POST"])
@@ -34,10 +37,22 @@ def create_post() -> Union[str, Response]:
     return render_template("create_post.html", form=form)
 
 
-@blog_posts.route("/<int:blog_post_id>")
+@blog_posts.route("/<int:blog_post_id>", methods=["GET", "POST"])
 def blog_post(blog_post_id: int) -> str:
     post = blog_post_repo.get_blog_post_by_id(blog_post_id)
-    return render_template("blog_post.html", post=post)
+    comments = comment_repo.get_by_post_id(blog_post_id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(
+            content=form.content.data,
+            user_id=current_user.id,
+            post_id=blog_post_id,
+        )
+        comment_repo.create(comment)
+        flash("Comment Created")
+    else:
+        flash_errors(form)
+    return render_template("blog_post.html", post=post, comments=comments, form=form)
 
 
 @blog_posts.route("/<int:blog_post_id>/update", methods=["GET", "POST"])
@@ -73,7 +88,7 @@ def delete_post(blog_post_id: int) -> Response:
     if post.author != current_user:
         abort(403)
 
-    db.session.delete(post)
-    db.session.commit()
+    blog_post_repo.delete_blog_post(post)
+
     flash("Post Deleted")
     return redirect(url_for("core.index"))

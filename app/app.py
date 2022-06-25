@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 from app.blog_posts.views import blog_posts
 from app.core.views import core
 from app.error_pages.views import error_pages
-from app.extensions import db, login_manager
+from app.extensions import db, login_manager, bootstrap
 from app.users.views import users
 
 
@@ -42,3 +42,5 @@ def configure_extensions(app: Flask) -> None:
 
     login_manager.init_app(app)
     login_manager.login_view = "users.login"
+
+    bootstrap.init_app(app)

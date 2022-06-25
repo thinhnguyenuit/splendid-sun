@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="comment-block">
+    <h1 class="comment-title">Comments ({{ comments|length }})</h1>
+    {% for comment in comments %}
+    <div class="comment">
+      <!-- <div class="comment-thumbnail">
+        <a href="{{ url_for('users.user', username=comment.author.username) }}">
+          <img
+            alt="user's avatar"
+            class="img-rounded profile-thumbnail"
+            src="{{ url_for('static', filename='profile_imgs/' + comment.author.profile_image) }}"
+          />
+        </a>
+      </div> -->
+      <div class="comment-content">
+        <span class="comment-name">
+          <a href="{{ url_for('users.user', username=comment.author.username) }}">
+            {{ comment.author.username }}
+          </a>
+        </span>
+        <span class="comment-time">
+          <em class="fa fa-clock-o"> {{ comment.created_at.strftime('%Y-%m-%d') }}</em>
+        </span>
+        <p class="comment-text">
+          {{ comment.content }}
+        </p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>

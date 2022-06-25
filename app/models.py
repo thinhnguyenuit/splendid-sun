@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
     )
 
     posts = db.relationship("BlogPost", backref="author", lazy=True)
+    comments = db.relationship("Comment", backref="author")
 
     def __init__(
         self,
@@ -50,6 +51,8 @@ def load_user(user_id: int) -> User:
 
 
 class BlogPost(db.Model):
+    __tablename__ = "blog_post"
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     title = db.Column(db.String(128), nullable=False)
@@ -57,7 +60,7 @@ class BlogPost(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    user = db.relationship(User)
+    comments = db.relationship("Comment", backref="post")
 
     def __init__(
         self,
@@ -75,3 +78,15 @@ class BlogPost(db.Model):
 
     def __repr__(self) -> str:
         return f"Post id: {self.id}, title: {self.title}, user_id: {self.user_id}"
+
+
+class Comment(db.Model):
+    __tablename__ = "comment"
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey("blog_post.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
